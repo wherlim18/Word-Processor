@@ -6,7 +6,7 @@
 #include <cstring>
 
 // Do not change anything in this file other than these initializer values
-const char* DICTIONARYPATH = "/Users/wherlim18/Desktop/Wurd/dictionary2.txt";
+const char* DICTIONARYPATH = "/Users/wherlim18/Desktop/Wurd/dictionary.txt";
 const int FOREGROUND_COLOR = COLOR_WHITE;
 const int BACKGROUND_COLOR = COLOR_BLACK;
 const int HIGHLIGHT_COLOR  = COLOR_RED;

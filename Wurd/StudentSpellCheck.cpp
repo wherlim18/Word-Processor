@@ -13,27 +13,39 @@ SpellCheck* createSpellCheck()
 
 StudentSpellCheck::~StudentSpellCheck() {
     
-    m_trie->Destroy(m_trie->getRoot());
+    Destroy(m_trie->getRoot());
+    m_trie->setToNull();
+    delete m_trie;
     
 	// TODO
 }
 
 bool StudentSpellCheck::load(std::string dictionaryFile) {
     
-    m_trie->Destroy(m_trie->getRoot());
-    
-    ifstream infile("/Users/wherlim18/Desktop/Wurd/dictionary.txt");    // infile is a name of our choosing
-        if ( ! infile )                // Did opening the file fail?
-        {
-            cerr << "Error: Cannot open dictionary.txt!" << endl;
-            return false;
-        }
-    
-    string s;
-    // getline returns infile; the while tests its success/failure state
-    while (getline(infile, s))
+    ifstream infile(dictionaryFile);    // infile is a name of our choosing
+    if (!infile )                // Did opening the file fail?
     {
-        m_trie->insert(s);
+        return false;
+    }
+    
+    Destroy(m_trie->getRoot());
+    
+    m_trie->setToNull();
+
+    string input;
+    // getline returns infile; the while tests its success/failure state
+    while (getline(infile, input))
+    {
+        string ans = "";
+        
+        for(int i = 0; i < input.size(); i++)
+        {
+            if(isalpha(input[i]) || input[i] == '\'')
+                ans += input[i];
+        }
+        
+        if(ans.size() > 0)
+            m_trie->insert(ans);
     }
     
 	return true; // TODO
@@ -58,7 +70,7 @@ bool StudentSpellCheck::spellCheck(std::string word, int max_suggestions, std::v
         for(int j = 0; j < 25; j++)
         {
             test[i]++;
-            
+
             if(m_trie->search(test))
             {
                 if(counter < max_suggestions)
@@ -70,7 +82,7 @@ bool StudentSpellCheck::spellCheck(std::string word, int max_suggestions, std::v
                     return false;
             }
         }
-        test[i] = word[i];
+        test[i] = tolower(word[i]);
     }
 
     
@@ -98,7 +110,7 @@ void StudentSpellCheck::spellCheckLine(const std::string& line, std::vector<Spel
                 pos.start = start;
                 pos.end  = i-1;
                 
-                problems.push_back(pos); 
+                problems.push_back(pos);
             }
             
             start = i+1;

@@ -44,12 +44,12 @@ private:
             for(int i = 0; i < word.size(); i++)
             {
                 char c = tolower(word[i]);
-                
+
                 if(c == '\'')
                 {
                     if(cur->children[26] == nullptr)
                         cur->children[26] = new TrieNode();
-                    
+
                     cur = cur->children[26];
                 }
                 else
@@ -70,16 +70,16 @@ private:
             for(int i = 0; i < word.size(); i++)
             {
                 char c = tolower(word[i]);
-                
+
                 int index = c - 'a';
-                
+
                 string test = word;
-                
+
                 if(c == '\'')
                 {
                     if(cur->children[26] == nullptr)
                         return false;
-                    
+
                     cur = cur->children[26];
                 }
                 else
@@ -94,29 +94,35 @@ private:
             return cur->isWord;
         }
 
-        void Destroy(TrieNode* node)
-        {
-            if(node == nullptr)
-                return;
-            
-            for(int i = 0; i < 27; i++)
-            {
-                Destroy(node->children[i]);
-            }
-            delete node;
-        }
-
         TrieNode* getRoot()
         {
             return m_root;
         }
         
+        void setToNull()
+        {
+            m_root = nullptr;
+        }
+
     private:
         TrieNode* m_root = nullptr;
     };
 
+    void Destroy(TrieNode* node)
+    {
+        if(node == nullptr)
+            return;
+
+        for(int i = 0; i < 27; i++)
+        {
+            Destroy(node->children[i]);
+        }
+        delete node;
+        node = nullptr;
+
+    }
+
     Trie* m_trie = new Trie();
-    
 };
 
 

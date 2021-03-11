@@ -29,21 +29,20 @@ StudentTextEditor::~StudentTextEditor()
 
 bool StudentTextEditor::load(std::string file) {
     
-    reset();
-    
-    ifstream infile("/Users/wherlim18/Desktop/Wurd/threemen.txt");    // infile is a name of our choosing
+    ifstream infile(file);    // infile is a name of our choosing
         if ( ! infile )                // Did opening the file fail?
         {
-            cerr << "Error: Cannot open data.txt!" << endl;
             return false;
         }
+    
+    reset();
     
     string s;
     // getline returns infile; the while tests its success/failure state
     while (getline(infile, s))
     {
-        if(!s.empty() && s[s.size()-1] == '\r')
-            s.erase(s.size()-1);
+        if(!s.empty() && s.back() == '\r')
+            s.pop_back();
         m_list.push_back(s);
     }
 
@@ -55,7 +54,7 @@ bool StudentTextEditor::load(std::string file) {
 }
 
 bool StudentTextEditor::save(std::string file) {
-    ofstream outfile("/Users/wherlim18/Desktop/Wurd/threemen.txt");   // outfile is a name of our choosing.
+    ofstream outfile(file);   // outfile is a name of our choosing.
         if ( ! outfile )           // Did the creation fail?
         {
             cerr << "Error: Cannot create results.txt!" << endl;
@@ -76,6 +75,7 @@ void StudentTextEditor::reset() {
     m_list.clear();
     m_currentRow = 0;
     m_currentColumn = 0;
+    getUndo()->clear();
 }
 
 void StudentTextEditor::move(Dir dir) {
@@ -258,10 +258,20 @@ int StudentTextEditor::getLines(int startRow, int numRows, std::vector<std::stri
     if(startRow < 0 || numRows < 0 || startRow > m_list.size())
         return -1;
     
-    list<string>::const_iterator li = m_list.begin();
+    list<string>::const_iterator li = m_it;
     
-    for(int i = 0; i < startRow && li != m_list.end(); i++)
-        li++;
+    int distance = startRow - m_currentRow;
+    
+    if(distance < 0)
+    {
+        for(int i = 0; i < distance*-1; i++)
+            li--;
+    }
+    else if (distance > 0)
+    {
+        for(int i = 0; i < distance; i++)
+            li++;
+    }
     
     lines.clear();
     
@@ -302,10 +312,11 @@ void StudentTextEditor::undo() {
                 m_it++;
         }
         
+        
         (*m_it).insert(testCol, testString);
         
         m_currentRow = testRow;
-        m_currentColumn = testCol+1;
+        m_currentColumn = testCol;
     }
     else if (a == Undo::DELETE)
     {
@@ -322,14 +333,17 @@ void StudentTextEditor::undo() {
                 m_it++;
         }
         
+        int tempCol = testCol;
+        
         for(int i = 0; i < testCount; i++)
         {
-            (*m_it).erase(testCol-1, 1);
+            (*m_it).erase(tempCol-1, 1);
             m_currentColumn--;
+            tempCol--;
         }
         
         m_currentRow = testRow;
-        m_currentColumn = testCol-1;
+        m_currentColumn = testCol-testCount;
     }
     else if(a == Undo::SPLIT)
     {
@@ -385,5 +399,6 @@ void StudentTextEditor::undo() {
         m_it--;
         string s2 = (*m_it);
         (*m_it) = s2+s1;
+        
     }
 }
